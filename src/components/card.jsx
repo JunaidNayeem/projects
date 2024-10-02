@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useRef } from 'react';
-import '../assets/scss/Global.scss';
+import "../assets/scss/global.scss";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import gsap from 'gsap';
 
