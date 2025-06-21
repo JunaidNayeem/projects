@@ -1,18 +1,14 @@
-/* eslint-disable no-unused-vars */
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-
+import Projects from './pages/Projects';
+import { ThemeProvider } from './context/ThemeContext';
+import './App.css';
 
 function App() {
   return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-        </Routes>
-      </BrowserRouter>
-    </>
+    <ThemeProvider>
+      <div className="min-h-screen bg-gray-50 bg-white ">
+        <Projects />
+      </div>
+    </ThemeProvider>
   );
 }
 
