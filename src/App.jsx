@@ -1,13 +1,27 @@
-import Projects from './pages/Projects';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import Projects from './pages/Projects';
+import UserShowcase from './pages/UserShowcase';
+import Login from './components/admin/Login';
+import Register from './components/admin/Register';
+import Dashboard from './components/admin/Dashboard';
 import './App.css';
 
 function App() {
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-gray-50 bg-white ">
-        <Projects />
-      </div>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Projects />} />
+            <Route path="/showcase/:userId" element={<UserShowcase />} />
+            <Route path="/admin/login" element={<Login />} />
+            <Route path="/admin/register" element={<Register />} />
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
