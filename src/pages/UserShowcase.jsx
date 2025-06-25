@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import { getProjectsByUser } from '../services/api';
+import { getProjectsByUser } from '../utils/services/api';
 import HeroSection from '../components/layout/HeroSection';
 import FilterSection from '../components/layout/FilterSection';
 import ProjectCard from '../components/common/ProjectCard';

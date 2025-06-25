@@ -10,9 +10,10 @@ import './App.css';
 
 function App() {
   return (
+    
     <ThemeProvider>
-      <AuthProvider>
         <Router>
+      <AuthProvider>
           <Routes>
             <Route path="/" element={<Projects />} />
             <Route path="/showcase/:userId" element={<UserShowcase />} />
@@ -20,9 +21,10 @@ function App() {
             <Route path="/admin/register" element={<Register />} />
             <Route path="/admin/dashboard" element={<Dashboard />} />
           </Routes>
-        </Router>
       </AuthProvider>
+        </Router>
     </ThemeProvider>
+    
   );
 }
 

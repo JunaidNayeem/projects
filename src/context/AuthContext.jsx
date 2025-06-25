@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login, register, getCurrentUser } from '../services/api';
+import { login, register, getCurrentUser } from '../utils/services/api';
 
 export const AuthContext = createContext();
 
@@ -27,10 +27,18 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const loginUser = async (email, password) => {
-    const response = await login(email, password);
-    localStorage.setItem('token', response.data.token);
-    setUser(response.data.user);
-    navigate('/admin/dashboard');
+    try{
+
+      const response = await login(email, password);
+      localStorage.setItem('token', response.data.token);
+      setUser(response.data.user);
+      navigate('/admin/dashboard');
+    }
+    catch(err){
+       alert(err?.message || 'Login failed');
+      console.log(err.message || "LoginFailed");
+      
+    }
   };
 
   const registerUser = async (username, email, password) => {

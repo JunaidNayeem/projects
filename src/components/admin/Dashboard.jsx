@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { getProjects, createProject, updateProject, deleteProject } from '../../services/api';
+import { getProjects, createProject, updateProject, deleteProject } from '../../utils/services/api';
 import { io } from 'socket.io-client';
 import ProjectModal from '../common/ProjectModal';
 import Button from '../common/Button';
