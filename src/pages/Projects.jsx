@@ -3,7 +3,8 @@ import HeroSection from '../components/layout/HeroSection';
 import FilterSection from '../components/layout/FilterSection';
 import ProjectCard from '../components/common/ProjectCard';
 import ProjectModal from '../components/common/ProjectModal';
-import { mockProjects } from '../data/mockProjects';
+import { getProjects } from '../utils/services/api';
+
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -13,15 +14,17 @@ const Projects = () => {
   const [loading, setLoading] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
 
-  useEffect(() => {
-    // Simulate API call
-    setLoading(true);
-    setTimeout(() => {
-      setProjects(mockProjects);
-      setFilteredProjects(mockProjects);
-      setLoading(false);
-    }, 1000);
-  }, []);
+
+useEffect(() => {
+  setLoading(true);
+  getProjects()
+    .then(res => {
+      setProjects(res.data || []);
+      setFilteredProjects(res.data || []);
+    })
+    .catch(err => console.error(err))
+    .finally(() => setLoading(false));
+}, []);
 
   useEffect(() => {
     let filtered = projects;
@@ -88,10 +91,12 @@ const Projects = () => {
           )}
         </div>
       </section>
-      <ProjectModal 
-        project={selectedProject} 
-        onClose={() => setSelectedProject(null)} 
-      />
+    {selectedProject && (
+    <ProjectModal 
+      project={selectedProject} 
+      onClose={() => setSelectedProject(null)} 
+    />
+    )}
     </>
   );
 };

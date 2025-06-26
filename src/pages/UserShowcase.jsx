@@ -1,85 +1,103 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { io } from 'socket.io-client';
-import { getProjectsByUser } from '../utils/services/api';
 import HeroSection from '../components/layout/HeroSection';
 import FilterSection from '../components/layout/FilterSection';
 import ProjectCard from '../components/common/ProjectCard';
+import ProjectModal from '../components/common/ProjectModal';
+import { getProjects } from '../utils/services/api';
+
 
 const UserShowcase = () => {
-  const { userId } = useParams();
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+
+
+useEffect(() => {
+  setLoading(true);
+  getProjects()
+    .then(res => {
+      setProjects(res.data || []);
+      setFilteredProjects(res.data || []);
+    })
+    .catch(err => console.error(err))
+    .finally(() => setLoading(false));
+}, []);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await getProjectsByUser(userId);
-        setProjects(response.data);
-        setFilteredProjects(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Failed to fetch projects:', err);
-        setLoading(false);
-      }
-    };
-    fetchProjects();
+    let filtered = projects;
 
-    const socket = io('http://localhost:5000');
-    socket.on('projectUpdate', (updatedProject) => {
-      if (updatedProject.project.userId === userId) {
-        setProjects(prev => {
-          if (updatedProject.action === 'delete') {
-            return prev.filter(p => p._id !== updatedProject.project._id);
-          } else if (updatedProject.action === 'create') {
-            return [...prev, updatedProject.project];
-          } else {
-            return prev.map(p => (p._id === updatedProject.project._id ? updatedProject.project : p));
-          }
-        });
-      }
-    });
+    if (activeFilter !== 'all') {
+      filtered = filtered.filter(project => 
+        project.category.toLowerCase() === activeFilter.toLowerCase()
+      );
+    }
 
-    return () => socket.disconnect();
-  }, [userId]);
+    if (searchTerm) {
+      filtered = filtered.filter(project =>
+        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.technologies.some(tech => 
+          tech.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    }
 
-  useEffect(() => {
-    setFilteredProjects(
-      projects.filter(project =>
-        (activeFilter === 'all' || project.category.toLowerCase() === activeFilter) &&
-        project.title.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
+    setFilteredProjects(filtered);
   }, [projects, activeFilter, searchTerm]);
 
-  if (loading) return <div className="text-center py-20">Loading...</div>;
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <>
       <HeroSection projectCount={projects.length} />
-      <FilterSection
-        activeFilter={activeFilter}
+      <FilterSection 
+        activeFilter={activeFilter} 
         setActiveFilter={setActiveFilter}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
       />
-      <section className="py-12">
+      <section className="py-16">
         <div className="container mx-auto px-6">
-          {filteredProjects.length === 0 ? (
-            <p className="text-center text-gray-600 dark:text-gray-300">No projects found.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map(project => (
-                <ProjectCard key={project._id} project={project} />
-              ))}
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
             </div>
+          ) : (
+            <>
+              {filteredProjects.length === 0 ? (
+                <div className="text-center py-20">
+                  <div className="text-gray-400 mb-4">
+                    <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-semibold text-gray-600 mb-2">No projects found</h3>
+                  <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredProjects.map((project, index) => (
+                    <ProjectCard 
+                      key={project.id} 
+                      project={project} 
+                      index={index} 
+                      onClick={() => setSelectedProject(project)}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
-    </div>
+    {selectedProject && (
+    <ProjectModal 
+      project={selectedProject} 
+      onClose={() => setSelectedProject(null)} 
+    />
+    )}
+    </>
   );
 };
 

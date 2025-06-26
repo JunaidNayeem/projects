@@ -1,6 +1,7 @@
 import { Github, ExternalLink, Calendar, ChevronRight } from 'lucide-react';
 
 const ProjectCard = ({ project, index, onClick }) => {
+   if (!project) return null;
   return (
     <div 
       className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden group cursor-pointer border border-gray-100"
@@ -13,8 +14,8 @@ const ProjectCard = ({ project, index, onClick }) => {
     >
       <div className="relative overflow-hidden">
         <img 
-          src={project.thumbnail} 
-          alt={project.title}
+          src={project.thumbnail?.trim() ? project.thumbnail : "src/assets/imagetest/test.jpg"} 
+           alt={project.title || "Project Thumbnail"}
           className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
         />
         <div className="absolute top-4 left-4">

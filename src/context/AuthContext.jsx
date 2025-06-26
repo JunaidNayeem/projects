@@ -29,29 +29,28 @@ export const AuthProvider = ({ children }) => {
   const loginUser = async (email, password) => {
     try{
 
-      const response = await login(email, password);
-      localStorage.setItem('token', response.data.token);
-      setUser(response.data.user);
-      navigate('/admin/dashboard');
-    }
-    catch(err){
-       alert(err?.message || 'Login failed');
-      console.log(err.message || "LoginFailed");
-      
-    }
+     const response = await login(email, password);
+    const loggedInUser = response.data.user;
+    localStorage.setItem('token', response.data.token);
+    setUser(loggedInUser);
+    navigate(`/${loggedInUser.username}/dashboard`);
+  } catch (err) {
+    console.log(err.message || "Login failed");
+  }
   };
 
   const registerUser = async (username, email, password) => {
     const response = await register(username, email, password);
+     const newUser = response.data.user;
     localStorage.setItem('token', response.data.token);
-    setUser(response.data.user);
-    navigate('/admin/dashboard');
+    setUser(newUser);
+    navigate(`/${newUser.username}/dashboard`);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
-    navigate('/admin/login');
+    navigate('/login');
   };
 
   return (

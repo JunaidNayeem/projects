@@ -11,8 +11,37 @@ const apiClient = axios.create({
 });
 
 
+const getAuthToken = () => {
+  
+  const user = localStorage.getItem('user');
+  if (user) {
+    try {
+      const userData = JSON.parse(user);
+      return userData.token;
+    } catch (e) {
+      console.error('Error parsing user data:', e);
+    }
+  }
+  
+
+  const cookies = document.cookie.split(';');
+  const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('x-auth-token='));
+  if (tokenCookie) {
+    return tokenCookie.split('=')[1];
+  }
+  
+  return null;
+};
+
 apiClient.interceptors.request.use(
   (config) => {
+  
+    const token = getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+      config.headers['x-auth-token'] = token;
+    }
+    
     console.log('API Request:', config.method?.toUpperCase(), config.url, config.data);
     return config;
   },
@@ -22,7 +51,6 @@ apiClient.interceptors.request.use(
   }
 );
 
-
 apiClient.interceptors.response.use(
   (response) => {
     console.log('API Response:', response.status, response.data);
@@ -31,9 +59,7 @@ apiClient.interceptors.response.use(
   (error) => {
     console.error('Response error:', error.response?.data || error.message);
     
- 
     if (error.response?.status === 401) {
-     
       localStorage.removeItem('user'); 
       window.location.href = '/admin/login';
     }
@@ -49,25 +75,27 @@ export const login = async (email, password) => {
       password,
     });
 
-    // const { token, user } = response.data;
-
-    return {
-      success: response.data.success,
-    message: response.data.message,
-    data: {
+   
+    const userData = {
       user: {
         userId: response.data.data.userId,
         username: response.data.data.username,
         email: response.data.data.email,
       },
       token: response.data.data.token,
-    },
+    };
+    
+    localStorage.setItem('user', JSON.stringify(userData));
+
+    return {
+      success: response.data.success,
+      message: response.data.message,
+      data: userData,
     };
   } catch (error) {
     throw error.response?.data || { success: false, message: 'Login failed' };
   }
 };
-
 
 export const register = async (username, email, password) => {
   try {
@@ -111,7 +139,9 @@ export const getCurrentUser = async () => {
 
 export const logout = async () => {
   try {
-  
+    localStorage.removeItem('user');
+    
+    
     document.cookie = 'x-auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.ve3.world;';
     document.cookie = 'x-auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     
