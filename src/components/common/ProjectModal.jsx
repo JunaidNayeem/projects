@@ -1,9 +1,10 @@
-import { Code, Layers } from 'lucide-react';
-import Button from './Button';
-import { useState } from 'react';
+"use client"
 
-const ProjectModal = ({ project, onSave,onClose }) => {
+import { Code, Layers } from "lucide-react"
+import Button from "./Button"
+import { useState } from "react"
 
+const ProjectModal = ({ project, onSave, onClose }) => {
   const [formData, setFormData] = useState({
     title: project?.title || "",
     description: project?.description || "",
@@ -12,54 +13,50 @@ const ProjectModal = ({ project, onSave,onClose }) => {
     github: project?.github || "",
     liveUrl: project?.liveUrl || "",
     thumbnail: project?.thumbnail || "",
-    public: project?.public || false,
-  });
+    isPublic: project?.isPublic !== undefined ? project.isPublic : false, 
+  })
 
-
-  const [techInput, setTechInput] = useState('');
-
+  const [techInput, setTechInput] = useState("")
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleAddTech = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     if (techInput.trim()) {
       setFormData((prev) => ({
         ...prev,
         technologies: [...prev.technologies, techInput.trim()],
-      }));
-      setTechInput('');
+      }))
+      setTechInput("")
     }
-  };
+  }
 
   const handleRemoveTech = (techToRemove) => {
     setFormData((prev) => ({
       ...prev,
       technologies: prev.technologies.filter((tech) => tech !== techToRemove),
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!formData.title.trim()) {
-      alert('Title is required');
-      return;
+      alert("Title is required")
+      return
     }
-    onSave(formData);
-  };
+    console.log("Submitting form data:", formData)
+    onSave(formData)
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-      <div className="p-8">
+        <div className="p-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-3xl font-bold text-gray-800">
-              {project ? 'Edit Project' : 'Add Project'}
-            </h2>
+            <h2 className="text-3xl font-bold text-gray-800">{project ? "Edit Project" : "Add Project"}</h2>
             <button
               onClick={onClose}
               className="bg-white/20 backdrop-blur-sm text-gray-800 p-2 rounded-full hover:bg-white/30 transition-colors"
@@ -69,7 +66,7 @@ const ProjectModal = ({ project, onSave,onClose }) => {
             </button>
           </div>
           <form onSubmit={handleSubmit}>
-            {/* Title */}
+        
             <div className="mb-4">
               <label htmlFor="title" className="block text-sm font-medium text-gray-700">
                 Title
@@ -84,7 +81,8 @@ const ProjectModal = ({ project, onSave,onClose }) => {
                 aria-required="true"
               />
             </div>
-            {/* Description */}
+
+        
             <div className="mb-4">
               <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                 Description
@@ -98,13 +96,14 @@ const ProjectModal = ({ project, onSave,onClose }) => {
                 rows="4"
               />
             </div>
-            {/* Category */}
+
+           
             <div className="mb-4">
               <label htmlFor="category" className="block text-sm font-medium text-gray-700">
                 Category
               </label>
               <input
-                required ="true"
+                required
                 id="category"
                 name="category"
                 value={formData.category}
@@ -112,7 +111,8 @@ const ProjectModal = ({ project, onSave,onClose }) => {
                 className="w-full p-3 border rounded-lg mt-1 text-gray-800"
               />
             </div>
-            {/* Technologies */}
+
+         
             <div className="mb-4">
               <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
                 <Code size={20} />
@@ -152,7 +152,8 @@ const ProjectModal = ({ project, onSave,onClose }) => {
                 </Button>
               </div>
             </div>
-            
+
+           
             <div className="mb-4">
               <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
                 <Layers size={20} />
@@ -172,7 +173,6 @@ const ProjectModal = ({ project, onSave,onClose }) => {
                     placeholder="https://github.com/username/repo"
                   />
                 </div>
-              </div>
                 <div>
                   <label htmlFor="liveUrl" className="block text-sm font-medium text-gray-700">
                     Live URL
@@ -186,20 +186,33 @@ const ProjectModal = ({ project, onSave,onClose }) => {
                     placeholder="https://your-project.com"
                   />
                 </div>
-               <div className="mb-4 flex items-center gap-2">
-                  <input
-                    id="public"
-                    type="checkbox"
-                    checked={formData.public}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, public: e.target.checked }))
-                    }
-                    className="w-4 h-4"
-                  />
-                  <label htmlFor="public" className="text-sm text-gray-700">
+              </div>
+            </div>
+
+          
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <input
+                  id="isPublic"
+                  type="checkbox"
+                  checked={formData.isPublic}
+                  onChange={(e) => {
+                    console.log("Checkbox changed:", e.target.checked) 
+                    setFormData((prev) => ({ ...prev, isPublic: e.target.checked }))
+                  }}
+                  className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <div>
+                  <label htmlFor="isPublic" className="text-sm font-medium text-gray-700">
                     Make this project public
                   </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.isPublic
+                      ? "This project will be visible to everyone"
+                      : "This project will only be visible in your dashboard and showcase"}
+                  </p>
                 </div>
+              </div>
             </div>
 
             <div className="flex gap-4 justify-end">
@@ -210,18 +223,15 @@ const ProjectModal = ({ project, onSave,onClose }) => {
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-3 rounded-lg hover:bg-blue-600"
-              >
-                {project ? 'Save Changes' : 'Create Project'}
+              <Button type="submit" className="bg-blue-500 text-white px-4 py-3 rounded-lg hover:bg-blue-600">
+                {project ? "Save Changes" : "Create Project"}
               </Button>
             </div>
           </form>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProjectModal;
+export default ProjectModal

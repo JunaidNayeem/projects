@@ -168,6 +168,19 @@ export const getProjects = async () => {
   }
 };
 
+export const getPublicProjects = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/projects/public`)
+    return {
+      success: response.data.success,
+      message: response.data.message || "Public projects fetched successfully",
+      data: response.data.data,
+    }
+  } catch (error) {
+    throw error.response?.data || { success: false, message: "Failed to fetch public projects" }
+  }
+}
+
 export const getProjectsByUser = async (userId) => {
   try {
     const response = await apiClient.get(`/projects/user/${userId}`);

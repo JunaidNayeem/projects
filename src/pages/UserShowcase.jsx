@@ -1,58 +1,65 @@
-import { useState, useEffect } from 'react';
-import HeroSection from '../components/layout/HeroSection';
-import FilterSection from '../components/layout/FilterSection';
-import ProjectCard from '../components/common/ProjectCard';
-import ProjectModal from '../components/common/ProjectModal';
-import { getProjects } from '../utils/services/api';
+"use client"
 
+import { useState, useEffect } from "react"
+import { useParams } from "react-router-dom" 
+import HeroSection from "../components/layout/HeroSection"
+import FilterSection from "../components/layout/FilterSection"
+import ProjectCard from "../components/common/ProjectCard"
+import ProjectModal from "../components/common/ProjectModal"
+import { getProjectsByUser } from "../utils/services/api" 
 
 const UserShowcase = () => {
-  const [projects, setProjects] = useState([]);
-  const [filteredProjects, setFilteredProjects] = useState([]);
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
-
-
-useEffect(() => {
-  setLoading(true);
-  getProjects()
-    .then(res => {
-      setProjects(res.data || []);
-      setFilteredProjects(res.data || []);
-    })
-    .catch(err => console.error(err))
-    .finally(() => setLoading(false));
-}, []);
+  const { userId } = useParams() 
+  const [projects, setProjects] = useState([])
+  const [filteredProjects, setFilteredProjects] = useState([])
+  const [activeFilter, setActiveFilter] = useState("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [selectedProject, setSelectedProject] = useState(null)
+  const [userInfo, setUserInfo] = useState(null)
 
   useEffect(() => {
-    let filtered = projects;
+    if (userId) {
+      setLoading(true)
+      
+      getProjectsByUser(userId)
+        .then((res) => {
+          setProjects(res.data || [])
+          setFilteredProjects(res.data || [])
+        
+          if (res.data && res.data.length > 0) {
+            setUserInfo(res.data[0].userId)
+          }
+        })
+        .catch((err) => console.error(err))
+        .finally(() => setLoading(false))
+    }
+  }, [userId])
 
-    if (activeFilter !== 'all') {
-      filtered = filtered.filter(project => 
-        project.category.toLowerCase() === activeFilter.toLowerCase()
-      );
+  useEffect(() => {
+    let filtered = projects
+
+    if (activeFilter !== "all") {
+      filtered = filtered.filter((project) => project.category.toLowerCase() === activeFilter.toLowerCase())
     }
 
     if (searchTerm) {
-      filtered = filtered.filter(project =>
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.technologies.some(tech => 
-          tech.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
+      filtered = filtered.filter(
+        (project) =>
+          project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          project.technologies.some((tech) => tech.toLowerCase().includes(searchTerm.toLowerCase())),
+      )
     }
 
-    setFilteredProjects(filtered);
-  }, [projects, activeFilter, searchTerm]);
+    setFilteredProjects(filtered)
+  }, [projects, activeFilter, searchTerm])
 
   return (
     <>
-      <HeroSection projectCount={projects.length} />
-      <FilterSection 
-        activeFilter={activeFilter} 
+      <HeroSection projectCount={projects.length} userInfo={userInfo} isUserShowcase={true} />
+      <FilterSection
+        activeFilter={activeFilter}
         setActiveFilter={setActiveFilter}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -69,20 +76,30 @@ useEffect(() => {
                 <div className="text-center py-20">
                   <div className="text-gray-400 mb-4">
                     <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
                     </svg>
                   </div>
                   <h3 className="text-2xl font-semibold text-gray-600 mb-2">No projects found</h3>
-                  <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+                  <p className="text-gray-500">
+                    {userInfo
+                      ? `${userInfo.username} hasn't created any projects yet`
+                      : "Try adjusting your search or filter criteria"}
+                  </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {filteredProjects.map((project, index) => (
-                    <ProjectCard 
-                      key={project.id} 
-                      project={project} 
-                      index={index} 
+                    <ProjectCard
+                      key={project._id || project.id}
+                      project={project}
+                      index={index}
                       onClick={() => setSelectedProject(project)}
+                      showVisibilityBadge={true} 
                     />
                   ))}
                 </div>
@@ -91,14 +108,9 @@ useEffect(() => {
           )}
         </div>
       </section>
-    {selectedProject && (
-    <ProjectModal 
-      project={selectedProject} 
-      onClose={() => setSelectedProject(null)} 
-    />
-    )}
+      {selectedProject && <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />}
     </>
-  );
-};
+  )
+}
 
-export default UserShowcase;
+export default UserShowcase
