@@ -2,7 +2,7 @@ import { Search, Filter } from 'lucide-react';
 import Button from '../common/Button';
 
 const FilterSection = ({ activeFilter, setActiveFilter, searchTerm, setSearchTerm }) => {
-  const categories = ['all', 'full stack', 'frontend', 'backend', 'mobile'];
+  const categories = ['all', 'fullstack', 'frontend', 'backend', 'mobile'];
 
   return (
     <section className="py-12 bg-white shadow-sm">
