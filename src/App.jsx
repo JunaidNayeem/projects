@@ -3,6 +3,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import Projects from './pages/Projects';
 import UserShowcase from './pages/UserShowcase';
+import GithubDashboard from './pages/GithubDashboard';
 import Login from './components/admin/Login';
 import Register from './components/admin/Register';
 import Dashboard from './components/admin/Dashboard';
@@ -15,7 +16,8 @@ function App() {
         <Router>
       <AuthProvider>
           <Routes>
-            <Route path="/" element={<Projects />} />
+            <Route path="/" element={<GithubDashboard />} />
+            <Route path="/explore" element={<Projects />} />
             <Route path="/showcase/:userId" element={<UserShowcase />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
